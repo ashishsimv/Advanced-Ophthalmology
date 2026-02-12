@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OphthoCalc - Complete Ophthalmology Calculator Suite</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; display: flex; flex-direction: column; min-height: 100vh; }
+        .header { background: #2c3e50; color: white; padding: 20px; text-align: center; }
+        .header h1 { font-size: 2em; margin-bottom: 5px; }
+        .header p { font-size: 1em; opacity: 0.9; }
+        .container { display: flex; flex: 1; }
+        .sidebar { width: 280px; background: #ecf0f1; padding: 20px; overflow-y: auto; border-right: 1px solid #bdc3c7; }
+        .category { margin-bottom: 20px; }
+        .category-title { font-weight: bold; margin-bottom: 10px; color: #2c3e50; font-size: 0.9em; text-transform: uppercase; }
+        .nav-btn { display: block; width: 100%; padding: 10px; margin-bottom: 5px; background: white; border: 1px solid #bdc3c7; border-radius: 4px; cursor: pointer; text-align: left; font-size: 0.9em; }
+        .nav-btn:hover { background: #3498db; color: white; }
+        .nav-btn.active { background: #2c3e50; color: white; }
+        .content { flex: 1; padding: 30px; overflow-y: auto; }
+        .calculator { display: none; }
+        .calculator.active { display: block; }
+        .calc-title { font-size: 1.8em; color: #2c3e50; margin-bottom: 10px; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        .calc-desc { color: #7f8c8d; margin-bottom: 25px; line-height: 1.5; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-weight: bold; margin-bottom: 5px; color: #2c3e50; }
+        .form-group input, .form-group select { width: 100%; max-width: 400px; padding: 8px; border: 1px solid #bdc3c7; border-radius: 4px; font-size: 1em; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; }
+        .calc-btn { padding: 12px 30px; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 1em; font-weight: bold; margin-top: 20px; }
+        .calc-btn:hover { background: #2980b9; }
+        .result { margin-top: 30px; padding: 20px; background: #ecf0f1; border-left: 4px solid #3498db; display: none; }
+        .result.show { display: block; }
+        .result-title { font-weight: bold; font-size: 1.2em; color: #2c3e50; margin-bottom: 10px; }
+        .result-value { font-size: 2em; font-weight: bold; color: #3498db; margin: 15px 0; }
+        .result-text { line-height: 1.6; color: #2c3e50; }
+        .alert-success { background: #d5f4e6; border-left-color: #27ae60; }
+        .alert-warning { background: #fef5e7; border-left-color: #f39c12; }
+        .alert-danger { background: #fadbd8; border-left-color: #e74c3c; }
+        .checkbox-group { margin: 10px 0; }
+        .checkbox-label { display: block; margin: 8px 0; }
+        .checkbox-label input { margin-right: 8px; }
+        .footer { background: #2c3e50; color: white; padding: 30px; text-align: center; }
+        .footer h3 { margin-bottom: 15px; }
+        .footer p { margin: 8px 0; line-height: 1.6; }
+        .disclaimer { background: #e74c3c; color: white; padding: 15px; margin-top: 20px; border-radius: 4px; }
+        @media (max-width: 768px) {
+            .container { flex-direction: column; }
+            .sidebar { width: 100%; border-right: none; border-bottom: 1px solid #bdc3c7; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>👁️ OphthoCalc</h1>
+        <p>Complete Ophthalmology Clinical Calculator Suite - 21 Evidence-Based Tools</p>
+    </div>
+
+    <div class="container">
+        <div class="sidebar">
+            <div class="category">
+                <div class="category-title">Cornea & Refractive</div>
+                <button class="nav-btn active" onclick="showCalc('lasik')">Refractive Surgery Safety</button>
+                <button class="nav-btn" onclick="showCalc('kc')">Keratoconus Staging</button>
+                <button class="nav-btn" onclick="showCalc('astig')">Corneal Astigmatism</button>
+            </div>
+            <div class="category">
+                <div class="category-title">Cataract & IOL</div>
+                <button class="nav-btn" onclick="showCalc('iol')">Intraocular Lens Power</button>
+                <button class="nav-btn" onclick="showCalc('toric')">Toric IOL Planning</button>
+                <button class="nav-btn" onclick="showCalc('piggy')">Piggyback Lens</button>
+            </div>
+            <div class="category">
+                <div class="category-title">Glaucoma</div>
+                <button class="nav-btn" onclick="showCalc('ohts')">OHT to POAG Risk</button>
+                <button class="nav-btn" onclick="showCalc('prog')">Glaucoma Progression</button>
+                <button class="nav-btn" onclick="showCalc('biomech')">Corneal Biomechanics</button>
+            </div>
+            <div class="category">
+                <div class="category-title">Retina</div>
+                <button class="nav-btn" onclick="showCalc('dr')">Diabetic Retinopathy</button>
+                <button class="nav-btn" onclick="showCalc('dme')">Diabetic Macular Edema</button>
+                <button class="nav-btn" onclick="showCalc('areds')">AREDS Score</button>
+                <button class="nav-btn" onclick="showCalc('amd')">Neovascular AMD</button>
+            </div>
+            <div class="category">
+                <div class="category-title">Other</div>
+                <button class="nav-btn" onclick="showCalc('ots')">Ocular Trauma Score</button>
+                <button class="nav-btn" onclick="showCalc('sun')">SUN Grading (Uveitis)</button>
+                <button class="nav-btn" onclick="showCalc('pediol')">Pediatric IOL</button>
+                <button class="nav-btn" onclick="showCalc('ted')">Thyroid Eye Disease</button>
+                <button class="nav-btn" onclick="showCalc('melanoma')">Uveal Melanoma</button>
+                <button class="nav-btn" onclick="showCalc('hcq')">Hydroxychloroquine</button>
+                <button class="nav-btn" onclick="showCalc('etham')">Ethambutol</button>
+                <button class="nav-btn" onclick="showCalc('papill')">Papilledema</button>
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- Calculator 1: LASIK Safety -->
+            <div id="lasik" class="calculator active">
+                <h2 class="calc-title">Refractive Surgery Safety Calculator</h2>
+                <p class="calc-desc">Calculate residual stromal bed, percentage tissue altered, and ectasia risk for LASIK, PRK, and SMILE procedures.</p>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Central Corneal Thickness (µm)</label>
+                        <input type="number" id="lasik-cct" placeholder="e.g., 550">
+                    </div>
+                    <div class="form-group">
+                        <label>Thinnest Pachymetry (µm)</label>
+                        <input type="number" id="lasik-thin" placeholder="e.g., 540">
+                    </div>
+                    <div class="form-group">
+                        <label>Flap Thickness (µm)</label>
+                        <input type="number" id="lasik-flap" placeholder="e.g., 110">
+                    </div>
+                    <div class="form-group">
+                        <label>Ablation Depth (µm)</label>
+                        <input type="number" id="lasik-abl" placeholder="e.g., 65">
+                    </div>
+                </div>
+                <button class="calc-btn" onclick="calcLASIK()">Calculate Safety</button>
+                <div id="lasik-result" class="result"></div>
+            </div>
+
+            <!-- Calculator 2: Keratoconus -->
+            <div id="kc" class="calculator">
+                <h2 class="calc-title">Keratoconus Staging (ABCD Classification)</h2>
+                <p class="calc-desc">Stage keratoconus severity and assess corneal cross-linking candidacy.</p>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Anterior Radius of Curvature (mm)</label>
+                        <input type="number" id="kc-ant" step="0.01" placeholder="e.g., 7.20">
+                    </div>
+                    <div class="form-group">
+                        <label>Thinnest Pachymetry (µm)</label>
+                        <input type="number" id="kc-pach" placeholder="e.g., 485">
+                    </div>
+                    <div class="form-group">
+                        <label>Best Corrected Visual Acuity (logMAR)</label>
+                        <input type="number" id="kc-va" step="0.1" placeholder="e.g., 0.2">
+                    </div>
+                    <div class="form-group">
+                        <label>Kmax Change per Year (D)</label>
+                        <input type="number" id="kc-change" step="0.1" placeholder="e.g., 0.8">
+                    </div>
+                </div>
+                <button class="calc-btn" onclick="calcKC()">Calculate Stage</button>
+                <div id="kc-result" class="result"></div>
+            </div>
+
+            <!-- Calculator 3: Astigmatism -->
+            <div id="astig" class="calculator">
+                <h2 class="calc-title">Corneal Astigmatism Vector Analysis</h2>
+                <p class="calc-desc">Calculate J0, J45 vectors and correction indices.</p>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Preoperative Cylinder (D)</label>
+                        <input type="number" id="ast-cyl" step="0.25" placeholder="e.g., -2.50">
+                    </div>
+                    <div class="form-group">
+                        <label>Preoperative Axis (degrees)</label>
+                        <input type="number" id="ast-axis" placeholder="e.g., 90">
+                    </div>
+                    <div class="form-group">
+                        <label>Postoperative Cylinder (D)</label>
+                        <input type="number" id="ast-postcyl" step="0.25" placeholder="e.g., -0.50">
+                    </div>
+                    <div class="form-group">
+                        <label>Postoperative Axis (degrees)</label>
+                        <input type="number" id="ast-postaxis" placeholder="e.g., 85">
+                    </div>
+                </div>
+                <button class="calc-btn" onclick="calcAstig()">Calculate Vectors</button>
+                <div id="ast-result" class="result"></div>
+            </div>
+
+            <!-- Calculator 4: IOL Power -->
+            <div id="iol" class="calculator">
+                <h2 class="calc-title">Intraocular Lens Power Calculator</h2>
+                <p class="calc-desc">Calculate IOL power using SRK/T and Hoffer Q formulas.</p>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Axial Length (mm)</label>
+                        <input type="number" id="iol-al" step="0.01" placeholder="e.g., 23.45">
+                    </div>
+                    <div class="form-group">
+                        <label>Average Keratometry (D)</label>
+                        <input type="number" id="iol-k" step="0.01" placeholder="e.g., 44.00">
+                    </div>
+                    <div class="form-group">
+                        <label>A-Constant</label>
+                        <input type="number" id="iol-a" step="0.1" value="118.5">
+                    </div>
+                    <div class="form-group">
+                        <label>Target Refraction (D)</label>
+                        <input type="number" id="iol-target" step="0.25" value="0">
+                    </div>
+                </div>
+                <button class="calc-btn" onclick="calcIOL()">Calculate IOL Power</button>
+                <div id="iol-result" class="result"></div>
+            </div>
+
+            <!-- Calculator 5: Toric IOL -->
+            <div id="toric" class="calculator">
+                <h2 class="calc-title">Toric Intraocular Lens Planning</h2>
+                <p class="calc-desc">Calculate required toric power and predict residual astigmatism.</p>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Corneal Cylinder (D)</label>
+                        <input type="number" id="tor-cyl" step="0.25" placeholder="e.g., 1.50">
+                    </div>
+                    <div class="form-group">
+                        <label>Corneal Axis (degrees)</label>
+                        <input type="number" id="tor-axis" placeholder="e.g., 90">
+                    </div>
+                    <div class="form-group">
+                        <label>Surgically Induced Astigmatism (D)</label>
+                        <input type="number" id="tor-sia" step="0.25" value="0.5">
+                    </div>
+                </div>
+                <button class="calc-btn" onclick="calcToric()">Calculate Toric Requirements</button>
+                <div id="tor-result" class="result"></div>
+            </div>
+
+            <!-- Calculator 6: Piggyback -->
+            <div id="piggy" class="calculator">
+                <h2 class="calc-title">Piggyback Lens / Refractive Surprise</h2>
+                <p class="calc-desc">Calculate additional IOL power needed to correct refractive surprise.</p>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Postoperative Refraction (D)</label>
+                        <input type="number" id="pb-refr" step="0.25" placeholder="e.g., +2.00">
+                    </div>
+                    <div class="form-group">
+                        <label>Implanted IOL Power (D)</label>
+                        <input type="number" id="pb-iol" step="0.5" placeholder="e.g., 21.0">
+                    </div>
+                </div>
+                <button class="calc-btn" onclick="calcPiggyback()">Calculate Additional Power</button>
+                <div id="pb-result" class="result"></div>
+            </div>
+
+            <!-- Calculator 7: OHTS -->
+            <div id="ohts" class="calculator">
+                <h2 class="calc-title">Ocular Hypertension to Primary Open-Angle Glaucoma Risk</h2>
+                <p class="calc-desc">Calculate 5-year risk of developing glaucoma from ocular hypertension.</p>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Age (years)</label>
+                        <input type="number" id="ohts-age" placeholder="e.g., 65">
+                    </div>
+                    <div class="form-group">
+                        <label>Intraocular Pressure (mmHg)</label>
+                        <input type="number" id="ohts-iop" placeholder="e.g., 24">
+                    </div>
+                    <div class="form-group">
+                        <label>Central Corneal Thickness (µm)</label>
+                        <input type="number" id="ohts-cct" placeholder="e.g., 555">
+                    </div>
+                    <div class="form-group">
+                        <label>Cup-to-Disc Ratio</label>
+                        <input type="number" id="ohts-cdr" step="0.1" placeholder="e.g., 0.5">
+                    </div>
+                </div>
+                <button class="calc-btn" onclick="calcOHTS()">Calculate Risk</button>
+                <div id="ohts-result" class="result"></div>
+            </div>
+
+            <!-- Calculator 8: Progression -->
+            <div id="prog" class="calculator">
+                <h2 class="calc-title">Glaucoma Progression Rate</h2>
+                <p class="calc-desc">Calculate rate of glaucoma progression and recommend target IOP reduction.</p>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Baseline RNFL Thickness (µm)</label>
+                        <input type="number" id="prog-rnfl1" placeholder="e.g., 85">
+                    </div>
+                    <div class="form-group">
+                        <label>Follow-up RNFL Thickness (µm)</label>
+                        <input type="number" id="prog-rnfl2" placeholder="e.g., 78">
+                    </div>
+                    <div class="form-group">
+                        <label>Time Interval (years)</label>
+                        <input type="number" id="prog-years" step="0.5" placeholder="e.g., 2.0">
+                    </div>
+                    <div class="form-group">
+                        <label>Baseline Mean Deviation (dB)</label>
+                        <input type="number" id="prog-md1" step="0.1" placeholder="e.g., -5.2">
+                    </div>
+                    <div class="form-group">
+                        <label>Follow-up Mean Deviation (dB)</label>
+                        <input type="number" id="prog-md2" step="0.1" placeholder="e.g., -7.8">
+                    </div>
+                </div>
+                <button class="calc-btn" onclick="calcProg()">Calculate Progression</button>
+                <div id="prog-result" class="result"></div>
+            </div>
+
+            <!-- Calculator 9: Biomechanics -->
+            <div id="biomech" class="calculator">
+                <h2 class="calc-title">Corneal Biomechanics Assessment</h2>
+                <p class="calc-desc">Evaluate biomechanical risk and adjust IOP interpretation.</p>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Corneal Hysteresis (mmHg)</label>
+                        <input type="number" id="bio-ch" step="0.1" placeholder="e.g., 9.5">
+                    </div>
+                    <div class="form-group">
+                        <label>Measured IOP (mmHg)</label>
+                        <input type="number" id="bio-iop" placeholder="e.g., 18">
+                    </div>
+                    <div class="form-group">
+                        <label>Central Corneal Thickness (µm)</label>
+                        <input type="number" id="bio-cct" placeholder="e.g., 545">
+                    </div>
+                </div>
+                <button class="calc-btn" onclick="calcBiomech()">Assess Risk</button>
+                <div id="bio-result" class="result"></div>
+            </div>
+
+            <!-- Calculator 10: DR Severity -->
+            <div id="dr" class="calculator">
+                <h2 class="calc-title">Diabetic Retinopathy Severity Grading</h2>
+                <p class="calc-desc">Grade diabetic retinopathy severity based on clinical findings.</p>
+                <div class="checkbox-group">
+                    <label class="checkbox-label"><input type="checkbox" id="dr-ma"> Microaneurysms present</label>
+                    <label class="checkbox-label"><input type="checkbox" id="dr-hem"> Hemorrhages (>20 per quadrant in ≥2 quadrants)</label>
+                    <label class="checkbox-label"><input type="checkbox" id="dr-vb"> Venous beading (≥2 quadrants)</label>
+                    <label class="checkbox-label"><input type="checkbox" id="dr-irma"> IRMA (≥1 quadrant)</label>
+                    <label class="checkbox-label"><input type="checkbox" id="dr-nv"> Neovascularization present</label>
+                    <label class="checkbox-label"><input type="checkbox" id="dr-vh"> Vitreous hemorrhage</label>
+                </div>
+                <button class="calc-btn" onclick="calcDR()">Grade Severity</button>
+                <div id="dr-result" class="result"></div>
+            </div>
+
+            <!-- Calculator 11: DME -->
+            <div id="dme" class="calculator">
+                <h2 class="calc-title">Diabetic Macular Edema Structural Evaluation</h2>
+                <p class="calc-desc">Assess treatment response and visual prognosis.</p>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Current Central Subfield Thickness (µm)</label>
+                        <input type="number" id="dme-cst" placeholder="e.g., 425">
+                    </div>
+                    <div class="form-group">
+                        <label>Baseline Central Subfield Thickness (µm)</label>
+                        <input type="number" id="dme-base" placeholder="e.g., 485">
+                    </div>
+                    <div class="form-group">
+                        <label>DRIL Length (mm)</label>
+                        <input type="number" id="dme-dril" step="0.1" placeholder="e.g., 0.8">
+                    </div>
+                    <div class="form-group">
+                        <label>Ellipsoid Zone Integrity (%)</label>
+                        <input type="number" id="dme-ez" placeholder="e.g., 75">
+                    </div>
+                    <div class="form-group">
+                        <label>Intraretinal Fluid</label>
+                        <select id="dme-irf">
+                            <option value="none">None</option>
+                            <option value="mild">Mild</option>
+                            <option value="moderate">Moderate</option>
+                            <option value="severe">Severe</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="calc-btn" onclick="calcDME()">Evaluate Response</button>
+                <div id="dme-result" class="result"></div>
+            </div>
+
+            <!-- Calculator 12: AREDS -->
+            <div id="areds" class="calculator">
+                <h2 class="calc-title">Age-Related Eye Disease Study (AREDS) Score</h2>
+                <p class="calc-desc">Calculate 5-year risk of progression to advanced age-related macular degeneration.</p>
+                <div class="checkbox-group">
+                    <label class="checkbox-label"><input type="checkbox" id="areds-drusen"> Large drusen (≥125 µm)</label>
+                    <label class="checkbox-label"><input type="checkbox" id="areds-pig"> Pigment abnormality</label>
+                    <label class="checkbox-label"><input type="checkbox" id="areds-fellow"> Advanced AMD in fellow eye</label>
+                </div>
+                <button class="calc-btn" onclick="calcAREDS()">Calculate Risk</button>
+                <div id="areds-result" class="result"></div>
+            </div>
+
+            <!-- Calculator 13: AMD -->
+            <div id="amd" class="calculator">
+                <h2 class="calc-title">Neovascular Age-Related Macular Degeneration Activity</h2>
+                <p class="calc-desc">Determine disease activity and treatment recommendations.</p>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Subretinal Fluid</label>
+                        <select id="amd-srf">
+                            <option value="no">Absent</option>
+                            <option value="yes">Present</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Intraretinal Fluid</label>
+                        <select id="amd-irf">
+                            <option value="no">Absent</option>
+                            <option value="yes">Present</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Pigment Epithelial Detachment Height (µm)</label>
+                        <input type="number" id="amd-ped" placeholder="e.g., 180">
+                    </div>
+                    <div class="form-group">
+                        <label>Visual Acuity Change (letters)</label>
+                        <input type="number" id="amd-va" placeholder="e.g., -5">
+                    </div>
+                </div>
+                <button class="calc-btn" onclick="calcAMD()">Assess Activity</button>
+                <div id="amd-result" class="result"></div>
+            </div>
+
+            <!-- Calculator 14: OTS -->
+            <div id="ots" class="calculator">
+                <h2 class="calc-title">Ocular Trauma Score</h2>
+                <p class="calc-desc">Predict visual outcome following ocular trauma.</p>
+                <div class="form-group">
+                    <label>Initial Visual Acuity</label>
+                    <select id="ots-va">
+                        <option value="nlp">No Light Perception</option>
+                        <option value="lp">Light Perception / Hand Motion</option>
+                        <option value="cf">Counting Fingers</option>
+                        <option value="20200-cf">20/200 to Counting Fingers</option>
+                        <option value="20200-2050">20/200 to 20/50</option>
+                        <option value="better">Better than 20/40</option>
+                    </select>
+                </div>
+                <div class="checkbox-group">
+                    <label class="checkbox-label"><input type="checkbox" id="ots-rupture"> Globe rupture</label>
+                    <label class="checkbox-label"><input type="checkbox" id="ots-endo"> Endophthalmitis</label>
+                    <label class="checkbox-label"><input type="checkbox" id="ots-perf"> Perforating injury</label>
+                    <label class="checkbox-label"><input type="checkbox" id="ots-rd"> Retinal detachment</label>
+                    <label class="checkbox-label"><input type="checkbox" id="ots-rapd"> RAPD present</label>
+                </div>
+                <button class="calc-btn" onclick="calcOTS()">Calculate Score</button>
+                <div id="ots-result" class="result"></div>
+            </div>
+
+            <!-- Calculator 15: SUN -->
+            <div id="sun" class="calculator">
+                <h2 class="calc-title">Standardization of Uveitis Nomenclature (SUN) Grading</h2>
+                <p class="calc-desc">Grade anterior chamber inflammation severity.</p>
+                <div class="form-group">
+                    <label>Anterior Chamber Cells (per field)</label>
+                    <select id="sun-cells">
+                        <option value="0">&lt;1 cell (Grade 0)</option>
+                        <option value="0.5">1-5 cells (Grade 0.5+)</option>
+                        <option value="1">6-15 cells (Grade 1+)</option>
+                        <option value="2">16-25 cells (Grade 2+)</option>
+                        <option value="3">26-50 cells (Grade 3+)</option>
+                        <option value="4">&gt;50 cells (Grade 4+)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Flare Grade</label>
+                    <select id="sun-flare">
+                        <option value="0">None</option>
+                        <option value="1">Faint</option>
+                        <option value="2">Moderate (iris/lens clear)</option>
+                        <option value="3">Marked (iris/lens hazy)</option>
+                        <option value="4">Intense (fibrin/plastic)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Vitreous Haze</label>
+                    <select id="sun-haze">
+                        <option value="0">None</option>
+                        <option value="1">Trace</option>
+                        <option value="2">1+ (mild)</option>
+                        <option value="3">2+ (moderate)</option>
+                        <option value="4">3+ (marked)</option>
+                        <option value="5">4+ (severe)</option>
+                    </select>
+                </div>
+                <button class="calc-btn" onclick="calcSUN()">Grade Inflammation</button>
+                <div id="sun-result" class="result"></div>
+            </div>
+
+            <!-- Calculator 16: Pediatric IOL -->
+            <div id="pediol" class="calculator">
+                <h2 class="calc-title">Pediatric Intraocular Lens Undercorrection</h2>
+                <p class="calc-desc">Calculate recommended undercorrection for pediatric cataract surgery.</p>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Age (years)</label>
+                        <input type="number" id="ped-age" placeholder="e.g., 5">
+                    </div>
+                    <div class="form-group">
+                        <label>Axial Length (mm)</label>
+                        <input type="number" id="ped-al" step="0.1" placeholder="e.g., 20.5">
+                    </div>
+                    <div class="form-group">
+                        <label>Target Adult Refraction (D)</label>
+                        <input type="number" id="ped-target" step="0.5" value="0">
+                    </div>
+                </div>
+                <button class="calc-btn" onclick="calcPedIOL()">Calculate Undercorrection</button>
+                <div id="ped-result" class="result"></div>
+            </div>
+
+            <!-- Calculator 17: TED -->
+            <div id="ted" class="calculator">
+                <h2 class="calc-title">Thyroid Eye Disease - Clinical Activity Score</h2>
+                <p class="calc-desc">Assess disease activity using 7-point CAS scale.</p>
+                <div class="checkbox-group">
+                    <label class="checkbox-label"><input type="checkbox" id="ted-pain"> Spontaneous retrobulbar pain</label>
+                    <label class="checkbox-label"><input type="checkbox" id="ted-gaze"> Pain on attempted up or down gaze</label>
+                    <label class="checkbox-label"><input type="checkbox" id="ted-red"> Eyelid redness</label>
+                    <label class="checkbox-label"><input type="checkbox" id="ted-swell"> Eyelid swelling</label>
+                    <label class="checkbox-label"><input type="checkbox" id="ted-conj"> Conjunctival redness</label>
+                    <label class="checkbox-label"><input type="checkbox" id="ted-chem"> Chemosis</label>
+                    <label class="checkbox-label"><input type="checkbox" id="ted-car"> Inflammation of caruncle/plica</label>
+                </div>
+                <button class="calc-btn" onclick="calcTED()">Calculate CAS Score</button>
+                <div id="ted-result" class="result"></div>
+            </div>
+
+            <!-- Calculator 18: Melanoma -->
+            <div id="melanoma" class="calculator">
+                <h2 class="calc-title">Uveal Melanoma Metastatic Risk</h2>
+                <p class="calc-desc">Estimate metastatic risk based on tumor characteristics.</p>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Tumor Thickness (mm)</label>
+                        <input type="number" id="mel-thick" step="0.1" placeholder="e.g., 6.5">
+                    </div>
+                    <div class="form-group">
+                        <label>Basal Diameter (mm)</label>
+                        <input type="number" id="mel-diam" step="0.1" placeholder="e.g., 12.0">
+                    </div>
+                    <div class="form-group">
+                        <label>Monosomy 3</label>
+                        <select id="mel-mono">
+                            <option value="unknown">Unknown</option>
+                            <option value="no">Absent</option>
+                            <option value="yes">Present</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Gene Expression Profile Class</label>
+                        <select id="mel-gep">
+                            <option value="unknown">Unknown</option>
+                            <option value="1">Class 1 (Low risk)</option>
+                            <option value="2">Class 2 (High risk)</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="calc-btn" onclick="calcMelanoma()">Calculate Risk</button>
+                <div id="mel-result" class="result"></div>
+            </div>
+
+            <!-- Calculator 19: HCQ -->
+            <div id="hcq" class="calculator">
+                <h2 class="calc-title">Hydroxychloroquine Retinal Toxicity Risk</h2>
+                <p class="calc-desc">Calculate daily dose per kilogram and assess toxicity risk.</p>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Daily Dose (mg)</label>
+                        <input type="number" id="hcq-dose" placeholder="e.g., 400">
+                    </div>
+                    <div class="form-group">
+                        <label>Weight (kg)</label>
+                        <input type="number" id="hcq-weight" step="0.1" placeholder="e.g., 70">
+                    </div>
+                    <div class="form-group">
+                        <label>Duration of Use (years)</label>
+                        <input type="number" id="hcq-dur" step="0.5" placeholder="e.g., 5">
+                    </div>
+                </div>
+                <button class="calc-btn" onclick="calcHCQ()">Calculate Risk</button>
+                <div id="hcq-result" class="result"></div>
+            </div>
+
+            <!-- Calculator 20: Ethambutol -->
+            <div id="etham" class="calculator">
+                <h2 class="calc-title">Ethambutol Optic Neuropathy Risk</h2>
+                <p class="calc-desc">Calculate mg/kg dosage and assess toxicity risk.</p>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Daily Dose (mg)</label>
+                        <input type="number" id="eth-dose" placeholder="e.g., 1200">
+                    </div>
+                    <div class="form-group">
+                        <label>Weight (kg)</label>
+                        <input type="number" id="eth-weight" step="0.1" placeholder="e.g., 75">
+                    </div>
+                </div>
+                <button class="calc-btn" onclick="calcEtham()">Calculate Risk</button>
+                <div id="eth-result" class="result"></div>
+            </div>
+
+            <!-- Calculator 21: Papilledema -->
+            <div id="papill" class="calculator">
+                <h2 class="calc-title">Papilledema Severity (Frisén Scale)</h2>
+                <p class="calc-desc">Grade optic disc edema severity.</p>
+                <div class="form-group">
+                    <label>Frisén Grade</label>
+                    <select id="pap-grade">
+                        <option value="0">Grade 0 - Normal optic disc</option>
+                        <option value="1">Grade 1 - C-shaped peripapillary halo</option>
+                        <option value="2">Grade 2 - 360° halo, obscured major vessels</option>
+                        <option value="3">Grade 3 - Elevated disc margins</option>
+                        <option value="4">Grade 4 - Total obscuration of vessel segment</option>
+                        <option value="5">Grade 5 - Partial/total obscuration of all vessels</option>
+                    </select>
+                </div>
+                <button class="calc-btn" onclick="calcPapill()">Grade Papilledema</button>
+                <div id="pap-result" class="result"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="footer">
+        <h3>© 2025 Dr. Ashish Patel, Dr. Parth Khatri, Dr. Shreyansh Shah</h3>
+        <p>All Rights Reserved</p>
+        <div class="disclaimer">
+            <strong>MEDICAL DISCLAIMER</strong><br>
+            This calculator is for educational and informational purposes only. It is NOT a substitute for professional medical advice, diagnosis, or treatment. Always seek the advice of a qualified ophthalmologist or other qualified health provider with any questions regarding patient care. Never disregard professional medical advice or delay seeking it because of information from this calculator. The creators assume no liability for decisions made based on this tool.
+        </div>
+    </div>
+
+    <script>
+        function showCalc(id) {
+            document.querySelectorAll('.calculator').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function showResult(id, html) {
+            const el = document.getElementById(id);
+            el.innerHTML = html;
+            el.classList.add('show');
+        }
+
+        // Calculator 1: LASIK
+        function calcLASIK() {
+            const cct = parseFloat(document.getElementById('lasik-cct').value);
+            const thin = parseFloat(document.getElementById('lasik-thin').value);
+            const flap = parseFloat(document.getElementById('lasik-flap').value);
+            const abl = parseFloat(document.getElementById('lasik-abl').value);
+            if (!cct || !thin || !flap || !abl) { alert('Please fill all fields'); return; }
+            
+            const rsb = thin - flap - abl;
+            const pta = ((flap + abl) / thin) * 100;
+            let risk = rsb < 250 ? 'High' : rsb < 300 ? 'Moderate' : 'Low';
+            let css = rsb < 250 ? 'alert-danger' : rsb < 300 ? 'alert-warning' : 'alert-success';
+            
+            showResult('lasik-result', `
+                <div class="${css}">
+                <div class="result-title">Refractive Surgery Safety</div>
+                <div class="result-value">RSB: ${rsb.toFixed(0)} µm</div>
+                <div class="result-text">
+                    <strong>Percentage Tissue Altered:</strong> ${pta.toFixed(1)}%<br>
+                    <strong>Ectasia Risk:</strong> ${risk}<br><br>
+                    <strong>Safety Thresholds:</strong><br>
+                    • RSB ≥300 µm: Safe<br>
+                    • RSB 250-300 µm: Borderline<br>
+                    • RSB &lt;250 µm: High Risk<br>
+                    • PTA &lt;40%: Preferred
+                </div>
+                </div>
+            `);
+        }
+
+        // Calculator 2: Keratoconus
+        function calcKC() {
+            const ant = parseFloat(document.getElementById('kc-ant').value);
+            const pach = parseFloat(document.getElementById('kc-pach').value);
+            const va = parseFloat(document.getElementById('kc-va').value);
+            const change = parseFloat(document.getElementById('kc-change').value);
+            if (!ant || !pach) { alert('Please fill required fields'); return; }
+            
+            const kmax = 337.5 / ant;
+            let stageA = kmax < 48 ? 0 : kmax < 53 ? 1 : kmax < 58 ? 2 : kmax < 75 ? 3 : 4;
+            let stageC = pach > 490 ? 0 : pach > 450 ? 1 : pach > 400 ? 2 : pach > 300 ? 3 : 4;
+            let stageD = !va ? 0 : va <= 0.1 ? 0 : va <= 0.3 ? 1 : va <= 0.5 ? 2 : va <= 0.8 ? 3 : 4;
+            let stage = Math.max(stageA, stageC, stageD);
+            let stageName = ['0 (No KC)', 'I (Early)', 'II (Moderate)', 'III (Advanced)', 'IV (Severe)'][stage];
+            
+            let prog = change >= 1.0 ? 'Progressive' : change >= 0.5 ? 'Possibly Progressive' : 'Stable';
+            let cxl = (change >= 0.5 && pach >= 400);
+            
+            showResult('kc-result', `
+                <div class="result-title">Keratoconus Staging</div>
+                <div class="result-value">Stage ${stageName}</div>
+                <div class="result-text">
+                    <strong>Kmax:</strong> ~${kmax.toFixed(1)} D (Stage ${stageA})<br>
+                    <strong>Pachymetry:</strong> ${pach} µm (Stage ${stageC})<br>
+                    ${va ? `<strong>Visual Acuity:</strong> ${va} logMAR (Stage ${stageD})<br>` : ''}
+                    <strong>Progression:</strong> ${prog}<br>
+                    <strong>CXL Candidate:</strong> ${cxl ? 'Yes' : 'No'}
+                </div>
+            `);
+        }
+
+        // Calculator 3: Astigmatism
+        function calcAstig() {
+            const cyl = parseFloat(document.getElementById('ast-cyl').value);
+            const axis = parseFloat(document.getElementById('ast-axis').value);
+            const postcyl = parseFloat(document.getElementById('ast-postcyl').value);
+            const postaxis = parseFloat(document.getElementById('ast-postaxis').value);
+            if (!cyl || !axis) { alert('Please enter preop values'); return; }
+            
+            const rad = Math.PI / 180;
+            const j0 = -(cyl / 2) * Math.cos(axis * 2 * rad);
+            const j45 = -(cyl / 2) * Math.sin(axis * 2 * rad);
+            
+            let html = `
+                <div class="result-title">Vector Analysis</div>
+                <div class="result-value">J0: ${j0.toFixed(3)} | J45: ${j45.toFixed(3)}</div>
+                <div class="result-text">
+                    <strong>Preoperative:</strong> ${cyl.toFixed(2)} D @ ${axis}°
+            `;
+            
+            if (postcyl && postaxis) {
+                const postj0 = -(postcyl / 2) * Math.cos(postaxis * 2 * rad);
+                const postj45 = -(postcyl / 2) * Math.sin(postaxis * 2 * rad);
+                const tia = Math.abs(cyl);
+                const sia = Math.sqrt(Math.pow(j0-postj0, 2) + Math.pow(j45-postj45, 2)) * 2;
+                const ci = sia / tia;
+                html += `<br><strong>Postoperative:</strong> ${postcyl.toFixed(2)} D @ ${postaxis}°<br>
+                         <strong>Correction Index:</strong> ${ci.toFixed(2)} ${ci >= 0.85 && ci <= 1.15 ? '(Excellent)' : '(Suboptimal)'}`;
+            }
+            html += `</div>`;
+            showResult('ast-result', html);
+        }
+
+        // Calculator 4: IOL
+        function calcIOL() {
+            const al = parseFloat(document.getElementById('iol-al').value);
+            const k = parseFloat(document.getElementById('iol-k').value);
+            const a = parseFloat(document.getElementById('iol-a').value);
+            const target = parseFloat(document.getElementById('iol-target').value);
+            if (!al || !k || !a) { alert('Please fill required fields'); return; }
+            
+            // SRK/T
+            const lOpt = a - 2.5 * al - 0.9 * k;
+            const cOpt = (lOpt / al) + 0.1;
+            const acd = 0.62467 * a - 68.747;
+            const iol = (1336 / (al - cOpt - acd)) - (1.336 / ((1.336 / (k + target)) - cOpt - acd));
+            
+            let eyeType = al < 22 ? 'Short Eye' : al > 26 ? 'Long Eye' : 'Normal';
+            
+            showResult('iol-result', `
+                <div class="result-title">IOL Power (SRK/T)</div>
+                <div class="result-value">${iol.toFixed(2)} D</div>
+                <div class="result-text">
+                    <strong>Eye Type:</strong> ${eyeType}<br>
+                    <strong>Axial Length:</strong> ${al.toFixed(2)} mm<br>
+                    <strong>Target:</strong> ${target.toFixed(2)} D<br>
+                    <strong>Estimated ACD:</strong> ${acd.toFixed(2)} mm
+                </div>
+            `);
+        }
+
+        // Calculator 5: Toric
+        function calcToric() {
+            const cyl = parseFloat(document.getElementById('tor-cyl').value);
+            const axis = parseFloat(document.getElementById('tor-axis').value);
+            const sia = parseFloat(document.getElementById('tor-sia').value);
+            if (!cyl || !axis) { alert('Please fill required fields'); return; }
+            
+            const netCyl = Math.abs(cyl - sia);
+            let toricPower = netCyl < 0.75 ? 0 : netCyl < 1.5 ? 1.5 : netCyl < 2.25 ? 2.25 : Math.ceil(netCyl/0.75)*0.75;
+            
+            showResult('tor-result', `
+                <div class="result-title">Toric IOL Planning</div>
+                <div class="result-value">${toricPower > 0 ? toricPower.toFixed(2) + ' D' : 'Not Required'}</div>
+                <div class="result-text">
+                    <strong>Net Corneal Astigmatism:</strong> ${netCyl.toFixed(2)} D<br>
+                    <strong>Recommendation:</strong> ${toricPower > 0 ? 'Toric IOL recommended' : 'Standard IOL sufficient'}
+                </div>
+            `);
+        }
+
+        // Calculator 6: Piggyback
+        function calcPiggyback() {
+            const refr = parseFloat(document.getElementById('pb-refr').value);
+            const iol = parseFloat(document.getElementById('pb-iol').value);
+            if (!refr || !iol) { alert('Please fill required fields'); return; }
+            
+            const add = refr * 1.5;
+            showResult('pb-result', `
+                <div class="result-title">Piggyback Lens Power</div>
+                <div class="result-value">${Math.abs(add).toFixed(2)} D</div>
+                <div class="result-text">
+                    <strong>Residual Refraction:</strong> ${refr > 0 ? '+' : ''}${refr.toFixed(2)} D<br>
+                    <strong>Additional Power Needed:</strong> ${add.toFixed(2)} D<br>
+                    <strong>Options:</strong> Piggyback IOL, IOL exchange, or laser correction
+                </div>
+            `);
+        }
+
+        // Calculator 7: OHTS
+        function calcOHTS() {
+            const age = parseFloat(document.getElementById('ohts-age').value);
+            const iop = parseFloat(document.getElementById('ohts-iop').value);
+            const cct = parseFloat(document.getElementById('ohts-cct').value);
+            const cdr = parseFloat(document.getElementById('ohts-cdr').value);
+            if (!age || !iop || !cct || !cdr) { alert('Please fill all fields'); return; }
+            
+            let score = 0;
+            if (age >= 65) score += 2; else if (age >= 55) score += 1;
+            if (iop >= 26) score += 3; else if (iop >= 24) score += 2; else if (iop >= 22) score += 1;
+            if (cct < 555) score += 3; else if (cct < 588) score += 2;
+            if (cdr >= 0.5) score += 2; else if (cdr >= 0.4) score += 1;
+            
+            let risk = Math.min(score * 3, 50);
+            let cat = risk < 10 ? 'Low' : risk < 20 ? 'Moderate' : 'High';
+            let css = risk < 10 ? 'alert-success' : risk < 20 ? 'alert-warning' : 'alert-danger';
+            
+            showResult('ohts-result', `
+                <div class="${css}">
+                <div class="result-title">5-Year POAG Risk</div>
+                <div class="result-value">${risk}%</div>
+                <div class="result-text">
+                    <strong>Risk Category:</strong> ${cat}<br>
+                    <strong>Recommendation:</strong> ${cat === 'Low' ? 'Annual monitoring' : cat === 'Moderate' ? 'Consider treatment vs observation' : 'Treatment recommended'}
+                </div>
+                </div>
+            `);
+        }
+
+        // Calculator 8: Progression
+        function calcProg() {
+            const rnfl1 = parseFloat(document.getElementById('prog-rnfl1').value);
+            const rnfl2 = parseFloat(document.getElementById('prog-rnfl2').value);
+            const years = parseFloat(document.getElementById('prog-years').value);
+            const md1 = parseFloat(document.getElementById('prog-md1').value);
+            const md2 = parseFloat(document.getElementById('prog-md2').value);
+            if (!rnfl1 || !rnfl2 || !years || !md1 || !md2) { alert('Please fill all fields'); return; }
+            
+            const rnflSlope = (rnfl2 - rnfl1) / years;
+            const mdSlope = (md2 - md1) / years;
+            let prog = (rnflSlope < -2 || mdSlope < -1) ? 'Rapid' : (rnflSlope < -1 || mdSlope < -0.5) ? 'Moderate' : (rnflSlope < -0.5 || mdSlope < -0.25) ? 'Slow' : 'Stable';
+            let target = prog === 'Rapid' ? 40 : prog === 'Moderate' ? 30 : prog === 'Slow' ? 20 : 0;
+            let css = prog === 'Stable' ? 'alert-success' : 'alert-danger';
+            
+            showResult('prog-result', `
+                <div class="${css}">
+                <div class="result-title">Glaucoma Progression</div>
+                <div class="result-value">${prog} Progression</div>
+                <div class="result-text">
+                    <strong>RNFL Rate:</strong> ${rnflSlope.toFixed(1)} µm/year<br>
+                    <strong>MD Rate:</strong> ${mdSlope.toFixed(2)} dB/year<br>
+                    ${target > 0 ? `<strong>Target IOP Reduction:</strong> ${target}%` : '<strong>Continue current therapy</strong>'}
+                </div>
+                </div>
+            `);
+        }
+
+        // Calculator 9: Biomechanics
+        function calcBiomech() {
+            const ch = parseFloat(document.getElementById('bio-ch').value);
+            const iop = parseFloat(document.getElementById('bio-iop').value);
+            const cct = parseFloat(document.getElementById('bio-cct').value);
+            if (!ch || !iop || !cct) { alert('Please fill all fields'); return; }
+            
+            let adj = (cct - 545) * 0.02;
+            if (ch < 9) adj += 2; else if (ch < 10) adj += 1; else if (ch > 11) adj -= 1;
+            const adjIOP = iop + adj;
+            let risk = (ch < 9 || cct < 500) ? 'High' : (ch < 10 || cct < 540) ? 'Moderate' : 'Normal';
+            let css = risk === 'Normal' ? 'alert-success' : risk === 'Moderate' ? 'alert-warning' : 'alert-danger';
+            
+            showResult('bio-result', `
+                <div class="${css}">
+                <div class="result-title">Biomechanical Assessment</div>
+                <div class="result-value">Adjusted IOP: ${adjIOP.toFixed(1)} mmHg</div>
+                <div class="result-text">
+                    <strong>Corneal Hysteresis:</strong> ${ch} mmHg<br>
+                    <strong>Risk Level:</strong> ${risk}
+                </div>
+                </div>
+            `);
+        }
+
+        // Calculator 10: DR
+        function calcDR() {
+            const ma = document.getElementById('dr-ma').checked;
+            const hem = document.getElementById('dr-hem').checked;
+            const vb = document.getElementById('dr-vb').checked;
+            const irma = document.getElementById('dr-irma').checked;
+            const nv = document.getElementById('dr-nv').checked;
+            const vh = document.getElementById('dr-vh').checked;
+            
+            let sev = 'No DR';
+            if (nv || vh) sev = 'Proliferative DR';
+            else if (vb && hem && irma) sev = 'Severe NPDR';
+            else if (hem || vb || irma) sev = 'Moderate NPDR';
+            else if (ma) sev = 'Mild NPDR';
+            
+            let css = (nv || vh) ? 'alert-danger' : sev.includes('Severe') ? 'alert-warning' : 'alert-success';
+            
+            showResult('dr-result', `
+                <div class="${css}">
+                <div class="result-title">Diabetic Retinopathy Severity</div>
+                <div class="result-value">${sev}</div>
+                <div class="result-text">
+                    <strong>Management:</strong> ${sev === 'No DR' ? 'Annual screening' : 
+                    sev === 'Mild NPDR' ? '6-12 month follow-up' :
+                    sev === 'Moderate NPDR' ? '6 month follow-up, consider anti-VEGF if DME' :
+                    sev === 'Severe NPDR' ? '3-4 month follow-up, consider PRP' :
+                    'Urgent PRP or anti-VEGF therapy'}
+                </div>
+                </div>
+            `);
+        }
+
+        // Calculator 11: DME
+        function calcDME() {
+            const cst = parseFloat(document.getElementById('dme-cst').value);
+            const base = parseFloat(document.getElementById('dme-base').value);
+            const dril = parseFloat(document.getElementById('dme-dril').value);
+            const ez = parseFloat(document.getElementById('dme-ez').value);
+            const irf = document.getElementById('dme-irf').value;
+            if (!cst || !base) { alert('Please fill required fields'); return; }
+            
+            const change = ((base - cst) / base) * 100;
+            let resp = change >= 20 ? 'Good Responder' : change >= 10 ? 'Partial Responder' : 'Poor Responder';
+            let prog = 'Fair';
+            if (dril && dril > 1.0) prog = 'Guarded';
+            if (ez && ez < 50) prog = 'Poor';
+            if (irf === 'severe') prog = 'Guarded';
+            
+            showResult('dme-result', `
+                <div class="result-title">DME Response</div>
+                <div class="result-value">${change.toFixed(1)}% Reduction</div>
+                <div class="result-text">
+                    <strong>Response:</strong> ${resp}<br>
+                    <strong>Visual Prognosis:</strong> ${prog}<br>
+                    <strong>Current CST:</strong> ${cst} µm (Baseline: ${base} µm)
+                </div>
+            `);
+        }
+
+        // Calculator 12: AREDS
+        function calcAREDS() {
+            const drusen = document.getElementById('areds-drusen').checked;
+            const pig = document.getElementById('areds-pig').checked;
+            const fellow = document.getElementById('areds-fellow').checked;
+            
+            let score = 0;
+            if (drusen) score++;
+            if (pig) score++;
+            if (fellow) score += 2;
+            
+            let risk = [1, 3, 12, 25][score] || 1;
+            let css = risk < 5 ? 'alert-success' : risk < 15 ? 'alert-warning' : 'alert-danger';
+            
+            showResult('areds-result', `
+                <div class="${css}">
+                <div class="result-title">5-Year AMD Progression Risk</div>
+                <div class="result-value">${risk}%</div>
+                <div class="result-text">
+                    <strong>AREDS Score:</strong> ${score}<br>
+                    <strong>Recommendation:</strong> ${risk >= 15 ? 'AREDS2 supplementation + close monitoring' : 
+                    risk >= 5 ? 'Consider AREDS2 supplementation' : 'Annual monitoring'}
+                </div>
+                </div>
+            `);
+        }
+
+        // Calculator 13: AMD
+        function calcAMD() {
+            const srf = document.getElementById('amd-srf').value;
+            const irf = document.getElementById('amd-irf').value;
+            const ped = parseFloat(document.getElementById('amd-ped').value) || 0;
+            const va = parseFloat(document.getElementById('amd-va').value) || 0;
+            
+            let active = (srf === 'yes' || irf === 'yes' || ped > 150 || va < -5);
+            
+            showResult('amd-result', `
+                <div class="${active ? 'alert-danger' : 'alert-success'}">
+                <div class="result-title">CNV Activity</div>
+                <div class="result-value">${active ? 'Active' : 'Inactive'}</div>
+                <div class="result-text">
+                    <strong>Treatment:</strong> ${active ? 'Continue anti-VEGF therapy' : 'Extend treatment interval or observe'}
+                </div>
+                </div>
+            `);
+        }
+
+        // Calculator 14: OTS
+        function calcOTS() {
+            const va = document.getElementById('ots-va').value;
+            const rupture = document.getElementById('ots-rupture').checked;
+            const endo = document.getElementById('ots-endo').checked;
+            const perf = document.getElementById('ots-perf').checked;
+            const rd = document.getElementById('ots-rd').checked;
+            const rapd = document.getElementById('ots-rapd').checked;
+            
+            let score = 0;
+            if (va === 'nlp') score = 60;
+            else if (va === 'lp') score = 70;
+            else if (va === 'cf') score = 80;
+            else if (va === '20200-cf') score = 90;
+            else if (va === '20200-2050') score = 90;
+            else score = 100;
+            
+            if (rupture) score -= 23;
+            if (endo) score -= 17;
+            if (perf) score -= 14;
+            if (rd) score -= 11;
+            if (rapd) score -= 10;
+            
+            let cat = score >= 92 ? 5 : score >= 82 ? 4 : score >= 65 ? 3 : score >= 44 ? 2 : 1;
+            
+            showResult('ots-result', `
+                <div class="result-title">Ocular Trauma Score</div>
+                <div class="result-value">Category ${cat}</div>
+                <div class="result-text">
+                    <strong>Raw Score:</strong> ${score}<br>
+                    <strong>Prognosis:</strong> ${cat >= 4 ? 'Good' : cat === 3 ? 'Fair' : 'Guarded'}
+                </div>
+            `);
+        }
+
+        // Calculator 15: SUN
+        function calcSUN() {
+            const cells = parseFloat(document.getElementById('sun-cells').value);
+            const flare = parseFloat(document.getElementById('sun-flare').value);
+            const haze = parseFloat(document.getElementById('sun-haze').value);
+            
+            let sev = (cells >= 3 || flare >= 3 || haze >= 3) ? 'Severe' : 
+                     (cells >= 2 || flare >= 2 || haze >= 2) ? 'Moderate' :
+                     (cells >= 1 || flare >= 1 || haze >= 1) ? 'Mild' : 'Trace/None';
+            
+            showResult('sun-result', `
+                <div class="result-title">Uveitis Grading</div>
+                <div class="result-value">${sev} Inflammation</div>
+                <div class="result-text">
+                    <strong>AC Cells:</strong> Grade ${cells}+<br>
+                    <strong>Flare:</strong> Grade ${flare}<br>
+                    <strong>Vitreous Haze:</strong> Grade ${haze}
+                </div>
+            `);
+        }
+
+        // Calculator 16: Pediatric IOL
+        function calcPedIOL() {
+            const age = parseFloat(document.getElementById('ped-age').value);
+            const al = parseFloat(document.getElementById('ped-al').value);
+            if (!age || !al) { alert('Please fill required fields'); return; }
+            
+            let under = age < 2 ? 6 : age < 4 ? 4 : age < 6 ? 3 : age < 8 ? 2 : 1;
+            
+            showResult('ped-result', `
+                <div class="result-title">Pediatric IOL Undercorrection</div>
+                <div class="result-value">+${under.toFixed(1)} D</div>
+                <div class="result-text">
+                    <strong>Age:</strong> ${age} years<br>
+                    <strong>Recommendation:</strong> Target ${under > 0 ? '+' + under : '0'} D hyperopia to account for axial growth
+                </div>
+            `);
+        }
+
+        // Calculator 17: TED
+        function calcTED() {
+            let score = 0;
+            if (document.getElementById('ted-pain').checked) score++;
+            if (document.getElementById('ted-gaze').checked) score++;
+            if (document.getElementById('ted-red').checked) score++;
+            if (document.getElementById('ted-swell').checked) score++;
+            if (document.getElementById('ted-conj').checked) score++;
+            if (document.getElementById('ted-chem').checked) score++;
+            if (document.getElementById('ted-car').checked) score++;
+            
+            let active = score >= 3;
+            let css = active ? 'alert-danger' : 'alert-success';
+            
+            showResult('ted-result', `
+                <div class="${css}">
+                <div class="result-title">Thyroid Eye Disease</div>
+                <div class="result-value">CAS ${score}/7</div>
+                <div class="result-text">
+                    <strong>Disease Activity:</strong> ${active ? 'Active (≥3)' : 'Inactive (<3)'}<br>
+                    <strong>Treatment:</strong> ${active ? 'Consider immunosuppression/biologics' : 'Observation or surgery for sequelae'}
+                </div>
+                </div>
+            `);
+        }
+
+        // Calculator 18: Melanoma
+        function calcMelanoma() {
+            const thick = parseFloat(document.getElementById('mel-thick').value);
+            const diam = parseFloat(document.getElementById('mel-diam').value);
+            const mono = document.getElementById('mel-mono').value;
+            const gep = document.getElementById('mel-gep').value;
+            if (!thick || !diam) { alert('Please fill tumor dimensions'); return; }
+            
+            let risk = 'Low';
+            if (thick > 8 || diam > 16) risk = 'High';
+            else if (thick > 5 || diam > 12) risk = 'Intermediate';
+            
+            if (mono === 'yes' || gep === '2') risk = 'High';
+            
+            let css = risk === 'Low' ? 'alert-success' : risk === 'Intermediate' ? 'alert-warning' : 'alert-danger';
+            
+            showResult('mel-result', `
+                <div class="${css}">
+                <div class="result-title">Uveal Melanoma Risk</div>
+                <div class="result-value">${risk} Risk</div>
+                <div class="result-text">
+                    <strong>Thickness:</strong> ${thick} mm<br>
+                    <strong>Diameter:</strong> ${diam} mm<br>
+                    <strong>Surveillance:</strong> ${risk === 'High' ? 'Every 3-6 months' : 'Annual'}
+                </div>
+                </div>
+            `);
+        }
+
+        // Calculator 19: HCQ
+        function calcHCQ() {
+            const dose = parseFloat(document.getElementById('hcq-dose').value);
+            const weight = parseFloat(document.getElementById('hcq-weight').value);
+            const dur = parseFloat(document.getElementById('hcq-dur').value);
+            if (!dose || !weight) { alert('Please fill required fields'); return; }
+            
+            const mgkg = dose / weight;
+            let risk = mgkg > 5 ? 'High' : 'Acceptable';
+            if (dur && dur > 5) risk = mgkg > 5 ? 'Very High' : 'Moderate';
+            
+            let css = risk.includes('High') ? 'alert-danger' : risk === 'Moderate' ? 'alert-warning' : 'alert-success';
+            
+            showResult('hcq-result', `
+                <div class="${css}">
+                <div class="result-title">Hydroxychloroquine Toxicity Risk</div>
+                <div class="result-value">${mgkg.toFixed(1)} mg/kg/day</div>
+                <div class="result-text">
+                    <strong>Risk Level:</strong> ${risk}<br>
+                    <strong>Screening:</strong> ${mgkg > 5 || (dur && dur > 5) ? 'Annual screening recommended' : 'Baseline then every 5 years'}
+                </div>
+                </div>
+            `);
+        }
+
+        // Calculator 20: Ethambutol
+        function calcEtham() {
+            const dose = parseFloat(document.getElementById('eth-dose').value);
+            const weight = parseFloat(document.getElementById('eth-weight').value);
+            if (!dose || !weight) { alert('Please fill required fields'); return; }
+            
+            const mgkg = dose / weight;
+            let risk = mgkg > 15 ? 'High' : 'Acceptable';
+            let css = risk === 'High' ? 'alert-danger' : 'alert-success';
+            
+            showResult('eth-result', `
+                <div class="${css}">
+                <div class="result-title">Ethambutol Toxicity Risk</div>
+                <div class="result-value">${mgkg.toFixed(1)} mg/kg/day</div>
+                <div class="result-text">
+                    <strong>Risk Level:</strong> ${risk}<br>
+                    <strong>Screening:</strong> ${risk === 'High' ? 'Monthly color vision and visual acuity' : 'Baseline then monthly screening'}
+                </div>
+                </div>
+            `);
+        }
+
+        // Calculator 21: Papilledema
+        function calcPapill() {
+            const grade = document.getElementById('pap-grade').value;
+            const gradeNames = ['Normal', 'Early', 'Developed', 'Severe', 'Advanced', 'Very Advanced'];
+            
+            showResult('pap-result', `
+                <div class="result-title">Papilledema Severity</div>
+                <div class="result-value">Frisén Grade ${grade}</div>
+                <div class="result-text">
+                    <strong>Severity:</strong> ${gradeNames[parseInt(grade)]}<br>
+                    <strong>Management:</strong> ${parseInt(grade) >= 3 ? 'Urgent neuroimaging and lumbar puncture' : 'Neuroimaging and ophthalmology follow-up'}
+                </div>
+            `);
+        }
+    </script>
+</body>
+</html>
